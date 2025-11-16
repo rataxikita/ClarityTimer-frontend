@@ -228,21 +228,34 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
       // Si se completaron todos los pomodoros, crear la sesión y completarla
       if (sessionRef.current >= settings.totalSessions) {
         try {
+          console.log('🎮 Creando sesión con detalles:', detallesActualizados);
+          
           const sesionCreada = await sesionService.crear({
             personajeUsadoId: user.personajeActivoId,
             detalles: detallesActualizados
           });
           
-          await sesionService.completar(sesionCreada.id);
-          await updateUser();
+          console.log('✅ Sesión creada con ID:', sesionCreada.id);
           
-          console.log('✅ Sesión completada, puntos otorgados:', sesionCreada.id);
+          // Esperar un momento antes de completar
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          await sesionService.completar(sesionCreada.id);
+          console.log('✅ Sesión completada, puntos otorgados');
+          
+          await updateUser();
+          console.log('✅ Usuario actualizado');
           
           setSesionId(null);
           setDetallesSesion([]);
           horaInicioSesion.current = null;
-        } catch (error) {
-          console.error('Error guardando/completando sesión:', error);
+        } catch (error: any) {
+          console.error('❌ Error guardando/completando sesión:', error);
+          console.error('❌ Detalles del error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status
+          });
         }
       }
     }

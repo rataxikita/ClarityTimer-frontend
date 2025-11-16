@@ -69,22 +69,39 @@ export default function Statistics() {
     if (!user) return;
     try {
       const sesiones = await sesionService.getMisSesiones();
-      const totalPomodoros = sesiones.reduce((sum, s) => sum + s.totalPomodoros, 0);
-      const totalTiempo = sesiones.reduce((sum, s) => sum + s.tiempoTotalMinutos, 0);
+      console.log('📊 Sesiones cargadas del backend:', sesiones);
+      console.log('📊 Cantidad de sesiones:', sesiones.length);
+      
+      if (sesiones.length > 0) {
+        console.log('📊 Primera sesión:', sesiones[0]);
+        console.log('📊 tiempoTotalMinutos de primera sesión:', sesiones[0].tiempoTotalMinutos);
+      }
+      
+      const totalPomodoros = sesiones.reduce((sum, s) => sum + (s.totalPomodoros || 0), 0);
+      const totalTiempo = sesiones.reduce((sum, s) => sum + (s.tiempoTotalMinutos || 0), 0);
+      
+      console.log('📊 Total pomodoros calculado:', totalPomodoros);
+      console.log('📊 Total tiempo calculado:', totalTiempo, 'minutos');
+      console.log('📊 Total tiempo formateado:', formatTime(totalTiempo));
       
       // Actualizar estadísticas con datos del backend
       setStats(prev => ({
         ...prev,
         totalSessions: sesiones.length,
-        totalStudyTime: totalTiempo,
+        totalStudyTime: totalTiempo || 0,
         currentStreak: user.streakDias || 0
       }));
     } catch (error) {
-      console.error('Error cargando sesiones del backend:', error);
+      console.error('❌ Error cargando sesiones del backend:', error);
     }
   };
 
   const formatTime = (minutes: number): string => {
+    // Manejar valores inválidos
+    if (!minutes || isNaN(minutes) || minutes < 0) {
+      return '0h 0m';
+    }
+    
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
@@ -231,7 +248,9 @@ export default function Statistics() {
           borderRadius: '10px',
           textAlign: 'center'
         }}>
-          <h3 style={{ margin: '0 0 10px 0', fontSize: '2rem' }}>{stats.averageSessionsPerDay.toFixed(1)}</h3>
+          <h3 style={{ margin: '0 0 10px 0', fontSize: '2rem' }}>
+            {isNaN(stats.averageSessionsPerDay) ? '0.0' : stats.averageSessionsPerDay.toFixed(1)}
+          </h3>
           <p style={{ margin: 0, opacity: 0.9 }}>Promedio/Día</p>
         </div>
       </div>
