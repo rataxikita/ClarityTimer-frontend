@@ -5,37 +5,85 @@ Aplicación frontend de temporizador Pomodoro con temática Sanrio y sistema de 
 ## ✨ Características
 
 - ⏰ **Temporizador Pomodoro**: Configurable con tiempos de estudio y descanso personalizables
-- 🎭 **Personajes Sanrio**: Cinnamoroll te acompaña durante tus sesiones de estudio
-- 🎵 **Sonidos Ambientales**: Olas, lluvia y fuego para crear un ambiente relajante
-- 🔇 **Control de Sonidos**: Opción para silenciar todos los sonidos
+- 🎭 **Personajes Sanrio**: Colecciona y usa personajes adorables durante tus sesiones
+- 🎮 **Sistema de Gamificación**: Gana puntos completando pomodoros y desbloquea personajes
+- 🏪 **Tienda de Personajes**: Canjea tus puntos por nuevos compañeros de estudio
+- 📊 **Estadísticas**: Visualiza tu progreso, rachas y ranking
+- 🔐 **Autenticación**: Sistema de login y registro con JWT
 - ⚙️ **Configuración Completa**: Personaliza todos los aspectos de tu experiencia
-- 📊 **Seguimiento de Progreso**: Registra tus sesiones completadas diariamente
 - 🔄 **Modo Automático**: Continúa automáticamente entre fases o pausa manualmente
-- 💻 **Aplicación de Escritorio**: Disponible como aplicación nativa para Windows, Mac y Linux
+- 📝 **Notas**: Toma notas durante tus sesiones de estudio
 
 ## 🚀 Instalación y Uso
 
-### Desarrollo
+### Requisitos Previos
 
-1. **Clona el repositorio**:
-   ```bash
-   git clone https://github.com/tu-usuario/ClarityTimer-frontend.git
-   cd ClarityTimer-frontend
-   ```
+- **Node.js 18+** - [Descargar Node.js](https://nodejs.org/)
+- **npm 9+** (incluido con Node.js)
+- **Backend de ClarityTimer** ejecutándose en `http://localhost:8080`
 
-2. **Instala las dependencias**:
-   ```bash
-   npm install
-   ```
+### Instalación Paso a Paso
 
-3. **Ejecuta en modo desarrollo**:
-   ```bash
-   # Solo aplicación web
-   npm run dev
-   
-   # Con Electron (aplicación de escritorio)
-   npm run electron-dev
-   ```
+#### 1. Clonar el Repositorio
+```bash
+git clone https://github.com/tu-usuario/ClarityTimer-frontend.git
+cd ClarityTimer-frontend
+```
+
+#### 2. Instalar Dependencias
+```bash
+npm install
+```
+
+Este comando instalará todas las dependencias necesarias incluyendo:
+- React 18
+- TypeScript
+- Vite
+- Axios para comunicación con el backend
+- Y más...
+
+#### 3. Configurar la URL del Backend
+
+Verifica que el archivo `src/services/api.ts` apunte al backend correcto:
+
+```typescript
+const API_BASE_URL = 'http://localhost:8080/api/v1';
+```
+
+#### 4. Ejecutar en Modo Desarrollo
+
+**Opción A: Usando npm**
+```bash
+npm run dev
+```
+
+**Opción B: Usando el script de PowerShell (Windows)**
+```powershell
+.\run-frontend.ps1
+```
+
+La aplicación se abrirá automáticamente en `http://localhost:5173`
+
+#### 5. Verificar que el Frontend está Funcionando
+
+1. Abre tu navegador en `http://localhost:5173`
+2. Deberías ver la página de login/registro
+3. Si el backend está corriendo, podrás registrarte y usar la aplicación ✅
+
+## 🔗 Conexión con el Backend
+
+**⚠️ IMPORTANTE:** El frontend requiere que el backend esté ejecutándose para funcionar correctamente.
+
+### Orden de Inicio Recomendado:
+1. **Primero**: Inicia el backend (puerto 8080)
+2. **Segundo**: Inicia el frontend (puerto 5173)
+
+### Verificar Conexión:
+- El frontend se conecta automáticamente al backend en `http://localhost:8080`
+- Si hay problemas de conexión, verifica:
+  - ✅ Backend está corriendo en puerto 8080
+  - ✅ No hay errores de CORS (el backend ya tiene CORS configurado para localhost:5173)
+  - ✅ MySQL está corriendo y conectado al backend
 
 ### Construir para Producción
 
