@@ -26,6 +26,7 @@ export interface InventarioUsuario {
   puntosGastados: number;
   esActivo: boolean;
   vecesUsado: number;
+  codigoCertificado?: string;
 }
 
 export interface CompraResponse {
@@ -37,6 +38,12 @@ export interface CompraResponse {
 export const personajeService = {
   getAll: async (): Promise<PersonajeSanrio[]> => {
     const response = await api.get<PersonajeSanrio[]>('/personajes');
+    return response.data;
+  },
+
+  // Para Admin/Vendedor: obtiene TODOS los personajes (incluyendo no disponibles)
+  getAllAdmin: async (): Promise<PersonajeSanrio[]> => {
+    const response = await api.get<PersonajeSanrio[]>('/personajes/admin/all');
     return response.data;
   },
 
@@ -65,8 +72,17 @@ export const personajeService = {
     return response.data;
   },
 
-  activar: async (personajeId: number): Promise<void> => {
-    await api.put(`/personajes/${personajeId}/activar`);
+  activar: async (id: number) => {
+    await api.put(`/personajes/${id}/activar`);
   },
-};
 
+  update: async (id: number, data: Partial<PersonajeSanrio>) => {
+    const response = await api.put(`/personajes/${id}`, data);
+    return response.data;
+  },
+
+  getAllAdopciones: async (): Promise<InventarioUsuario[]> => {
+    const response = await api.get<InventarioUsuario[]>('/personajes/admin/adopciones');
+    return response.data;
+  }
+};

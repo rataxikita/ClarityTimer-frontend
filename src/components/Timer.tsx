@@ -1,19 +1,18 @@
 import { useEffect } from 'react';
 import Character from './Character';
-import FloatingPet from './FloatingPet';
 import { useSettings } from '../contexts/SettingsContext';
 import { useTimer } from '../contexts/TimerContext';
 
 export default function TimerComponent() {
     const { settings } = useSettings();
-    const { 
-        minutes, 
-        seconds, 
-        isRunning, 
-        isBreak, 
-        isLongBreak, 
-        session, 
-        isPaused, 
+    const {
+        minutes,
+        seconds,
+        isRunning,
+        isBreak,
+        isLongBreak,
+        session,
+        isPaused,
         dailyProgress,
         playNotification,
         toggleTimer,
@@ -29,14 +28,8 @@ export default function TimerComponent() {
 
     return (
         <>
-            {/* Mascota flotante */}
-            <FloatingPet 
-                isBreak={isBreak} 
-                isPaused={isPaused} 
-            />
-            
-            <div style={{ 
-                textAlign: 'center', 
+            <div style={{
+                textAlign: 'center',
                 padding: '20px',
                 background: 'rgba(255, 255, 255, 0.8)',
                 borderRadius: '15px',
@@ -48,12 +41,12 @@ export default function TimerComponent() {
                     marginBottom: '20px',
                     fontWeight: 'bold'
                 }}>
-                    {isBreak 
-                        ? (isLongBreak ? '🌙 Descanso Largo' : '💤 Descanso') 
+                    {isBreak
+                        ? (isLongBreak ? '🌙 Descanso Largo' : '💤 Descanso')
                         : '📚 Estudio'
                     }
                 </h2>
-                
+
                 {/* Información del descanso largo */}
                 {isBreak && isLongBreak && (
                     <div style={{
@@ -65,12 +58,12 @@ export default function TimerComponent() {
                         boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
                     }}>
                         <p style={{ margin: 0, fontWeight: 'bold' }}>
-                            🎉 ¡Felicitaciones! Has completado 4 sesiones. 
+                            🎉 ¡Felicitaciones! Has completado 4 sesiones.
                             ¡Disfruta de tu descanso largo!
                         </p>
                     </div>
                 )}
-                
+
                 <Character isBreak={isBreak} />
 
                 <div style={{
@@ -102,7 +95,7 @@ export default function TimerComponent() {
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
-                    <button 
+                    <button
                         onClick={toggleTimer}
                         style={{
                             padding: '15px 30px',
@@ -129,7 +122,7 @@ export default function TimerComponent() {
                         {isRunning ? '⏸️ Pausar' : '▶️ Iniciar'}
                     </button>
 
-                    <button 
+                    <button
                         onClick={resetTimer}
                         style={{
                             padding: '15px 30px',
@@ -156,7 +149,7 @@ export default function TimerComponent() {
                         🔄 Reiniciar
                     </button>
                 </div>
-                
+
                 {/* Indicador de estado global */}
                 <div style={{
                     marginTop: '20px',

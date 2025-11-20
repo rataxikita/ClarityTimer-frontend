@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
-import { 
-  TIME_CONSTRAINTS, 
-  CHARACTERS, 
-  type CharacterType
+import {
+  TIME_CONSTRAINTS
 } from '../constants/settings';
 
 export default function Settings() {
@@ -12,7 +10,6 @@ export default function Settings() {
   const [breakTime, setBreakTime] = useState<number | string>(settings.breakTime);
   const [totalSessions, setTotalSessions] = useState<number | string>(settings.totalSessions);
   const [autoMode, setAutoMode] = useState(settings.autoMode);
-  const [selectedCharacter, setSelectedCharacter] = useState<CharacterType>(settings.selectedCharacter);
 
   // Actualizar estado local cuando cambie la configuración
   useEffect(() => {
@@ -20,25 +17,24 @@ export default function Settings() {
     setBreakTime(settings.breakTime);
     setTotalSessions(settings.totalSessions);
     setAutoMode(settings.autoMode);
-    setSelectedCharacter(settings.selectedCharacter);
   }, [settings]);
 
   // Validación suave para inputs
   const handleInputChange = (
-    setter: (value: number | string) => void, 
-    value: string, 
-    min = 1, 
+    setter: (value: number | string) => void,
+    value: string,
+    min = 1,
     max = 120
   ) => {
     // Solo permitir números
     const numericValue = value.replace(/[^0-9]/g, '');
-    
+
     // Si está vacío, permitir que se borre completamente
     if (numericValue === '') {
       setter('');
       return;
     }
-    
+
     const numValue = parseInt(numericValue);
     if (numValue >= min && numValue <= max) {
       setter(numValue);
@@ -51,18 +47,18 @@ export default function Settings() {
       alert('Por favor, completa todos los campos con valores válidos.');
       return;
     }
-    
+
     // Actualizar configuración usando el contexto
     const newSettings = {
       studyTime,
       breakTime,
       totalSessions,
       autoMode,
-      selectedCharacter
+      selectedCharacter: settings.selectedCharacter // Mantener el personaje actual sin cambios
     };
 
     const result = updateSettings(newSettings);
-    
+
     if (result.success) {
       // Mostrar notificación de éxito
       const notification = document.createElement('div');
@@ -106,11 +102,13 @@ export default function Settings() {
       }
     `;
     document.head.appendChild(style);
-    return () => document.head.removeChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   return (
-    <div style={{ 
+    <div style={{
       padding: '20px',
       background: 'rgba(255, 255, 255, 0.8)',
       borderRadius: '15px',
@@ -240,45 +238,6 @@ export default function Settings() {
           </small>
         </div>
 
-        {/* Selector de personajes */}
-        <div style={{
-          background: 'white',
-          padding: '20px',
-          borderRadius: '10px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-        }}>
-          <label style={{
-            display: 'block',
-            marginBottom: '10px',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            color: '#4a5568'
-          }}>
-            🎭 Personaje:
-          </label>
-          <select
-            value={selectedCharacter}
-            onChange={(e) => setSelectedCharacter(e.target.value as CharacterType)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              border: '2px solid #e2e8f0',
-              fontSize: '16px',
-              backgroundColor: 'white',
-              cursor: 'pointer',
-              transition: 'border-color 0.3s ease'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#667eea'}
-            onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
-          >
-            <option value={CHARACTERS.CINNAMOROLL}>🍓 Cinnamoroll</option>
-          </select>
-          <small style={{ color: '#888', fontSize: '12px' }}>
-            Elige tu compañero de estudio
-          </small>
-        </div>
-
       </div>
 
       {/* Modo automático */}
@@ -309,13 +268,13 @@ export default function Settings() {
           />
           🔄 Modo automático
         </label>
-        <p style={{ 
-          margin: '10px 0 0 0', 
-          color: '#666', 
+        <p style={{
+          margin: '10px 0 0 0',
+          color: '#666',
           fontSize: '14px',
           lineHeight: '1.4'
         }}>
-          {autoMode 
+          {autoMode
             ? '✅ El temporizador continuará automáticamente entre fases sin necesidad de pausar manualmente.'
             : '⏸️ El temporizador se pausará al final de cada fase para que puedas decidir cuándo continuar.'
           }
@@ -323,7 +282,7 @@ export default function Settings() {
       </div>
 
       <div style={{ textAlign: 'center' }}>
-        <button 
+        <button
           onClick={handleSave}
           style={{
             padding: '15px 40px',

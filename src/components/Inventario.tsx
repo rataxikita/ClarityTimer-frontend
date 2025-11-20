@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { personajeService, type InventarioUsuario } from '../services/personajeService';
 import { useAuth } from '../contexts/AuthContext';
 import PersonajeCard from './PersonajeCard';
+import CertificateModal from './CertificateModal';
 
 export default function Inventario() {
   const { user } = useAuth();
   const [inventario, setInventario] = useState<InventarioUsuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCertificate, setSelectedCertificate] = useState<InventarioUsuario | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -117,6 +119,7 @@ export default function Inventario() {
                   personaje={personajeActivo.personaje}
                   inventario={inventario}
                   onCompraExitosa={handleActualizacion}
+                  onViewCertificate={() => setSelectedCertificate(personajeActivo)}
                 />
               </div>
             </div>
@@ -143,12 +146,21 @@ export default function Inventario() {
                     personaje={inv.personaje}
                     inventario={inventario}
                     onCompraExitosa={handleActualizacion}
+                    onViewCertificate={() => setSelectedCertificate(inv)}
                   />
                 ))}
               </div>
             </div>
           )}
         </>
+      )}
+
+      {selectedCertificate && (
+        <CertificateModal
+          isOpen={!!selectedCertificate}
+          onClose={() => setSelectedCertificate(null)}
+          item={selectedCertificate}
+        />
       )}
     </div>
   );

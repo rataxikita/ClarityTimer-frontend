@@ -8,12 +8,14 @@ import NotificationManager from './components/NotificationManager';
 import GlobalStatusIndicator from './components/GlobalStatusIndicator';
 import TiendaPersonajes from './components/TiendaPersonajes';
 import Inventario from './components/Inventario';
-import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import { SettingsProvider } from './contexts/SettingsContext';
 import { TimerProvider } from './contexts/TimerContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import RoleRoute from './components/RoleRoute';
+import VendedorDashboard from './components/VendedorDashboard';
+import AdminDashboard from './components/AdminDashboard';
 
 interface Tab {
   key: string;
@@ -94,8 +96,8 @@ function AppContent() {
   const ActiveComponent = tabs.find(tab => tab.key === activeTab)?.component;
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
+    <div style={{
+      minHeight: '100vh',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       padding: '20px',
       fontFamily: 'Arial, sans-serif'
@@ -116,8 +118,8 @@ function AppContent() {
           flexWrap: 'wrap',
           gap: '15px'
         }}>
-          <h1 style={{ 
-            textAlign: 'center', 
+          <h1 style={{
+            textAlign: 'center',
             color: '#4a5568',
             margin: 0,
             fontSize: '2.5rem',
@@ -165,12 +167,13 @@ function AppContent() {
         {/* Contenido de las pestañas */}
         {ActiveComponent && <ActiveComponent />}
       </div>
-      
+
       {/* Indicador de estado global (solo visible cuando la ventana esté minimizada) */}
       <GlobalStatusIndicator />
     </div>
   );
 }
+
 
 function App() {
   return (
@@ -181,15 +184,37 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+
+              {/* Ruta para Vendedores y Admins */}
+              <Route
+                path="/vendedor"
+                element={
+                  <RoleRoute allowedRoles={['VENDEDOR', 'ADMIN']}>
+                    <VendedorDashboard />
+                  </RoleRoute>
+                }
+              />
+
+              {/* Ruta para Admins */}
+              <Route
+                path="/admin"
+                element={
+                  <RoleRoute allowedRoles={['ADMIN']}>
+                    <AdminDashboard />
+                  </RoleRoute>
+                }
+              />
+
+              {/* Ruta principal para Clientes (SOLO CLIENTES) */}
+              {/* Si un ADMIN intenta entrar aquí, RoleRoute lo redirigirá a /admin */}
               <Route
                 path="/*"
                 element={
-                  <ProtectedRoute>
+                  <RoleRoute allowedRoles={['CLIENTE']}>
                     <AppContent />
-                  </ProtectedRoute>
+                  </RoleRoute>
                 }
               />
-              <Route path="/" element={<Navigate to="/timer" replace />} />
             </Routes>
           </TimerProvider>
         </SettingsProvider>
@@ -199,4 +224,3 @@ function App() {
 }
 
 export default App;
-

@@ -1,15 +1,9 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
-import { STORAGE_KEYS, NOTE_CATEGORIES, type NoteCategory } from '../constants/settings';
+import { noteService, type Note } from '../services/noteService';
+import { NOTE_CATEGORIES, type NoteCategory } from '../constants/settings';
 
-interface Note {
-  id: number;
-  content: string;
-  category: NoteCategory;
-  createdAt: string;
-  completed: boolean;
-  pinned: boolean;
-}
+
 
 interface Category {
   key: NoteCategory | 'all';
@@ -37,68 +31,69 @@ export default function NotesManager() {
     loadNotes();
   }, []);
 
-  const loadNotes = () => {
+  const loadNotes = async () => {
     try {
-      const savedNotes = localStorage.getItem(STORAGE_KEYS.NOTES);
-      if (savedNotes) {
-        setNotes(JSON.parse(savedNotes));
-      }
+      const data = await noteService.getAll();
+      setNotes(data);
     } catch (error) {
       console.error('Error cargando notas:', error);
     }
   };
 
-  const saveNotes = (updatedNotes: Note[]) => {
+  const addNote = async () => {
+    if (!newNote.trim()) return;
+
     try {
-      localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(updatedNotes));
+      const createdNote = await noteService.create({
+        content: newNote.trim(),
+        category: selectedCategory as NoteCategory,
+        completed: false,
+        pinned: false
+      });
+
+      setNotes([createdNote, ...notes]);
+      setNewNote('');
+      setShowAddNote(false);
     } catch (error) {
-      console.error('Error guardando notas:', error);
+      console.error('Error creando nota:', error);
     }
   };
 
-  const addNote = () => {
-    if (!newNote.trim()) return;
-
-    const note: Note = {
-      id: Date.now(),
-      content: newNote.trim(),
-      category: selectedCategory as NoteCategory,
-      createdAt: new Date().toISOString(),
-      completed: false,
-      pinned: false
-    };
-
-    const updatedNotes = [note, ...notes];
-    setNotes(updatedNotes);
-    saveNotes(updatedNotes);
-    setNewNote('');
-    setShowAddNote(false);
+  const deleteNote = async (id: number) => {
+    try {
+      await noteService.delete(id);
+      setNotes(notes.filter(note => note.id !== id));
+    } catch (error) {
+      console.error('Error eliminando nota:', error);
+    }
   };
 
-  const deleteNote = (id: number) => {
-    const updatedNotes = notes.filter(note => note.id !== id);
-    setNotes(updatedNotes);
-    saveNotes(updatedNotes);
+  const toggleComplete = async (id: number) => {
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
+
+    try {
+      const updatedNote = await noteService.update(id, { completed: !note.completed });
+      setNotes(notes.map(n => n.id === id ? updatedNote : n));
+    } catch (error) {
+      console.error('Error actualizando nota:', error);
+    }
   };
 
-  const toggleComplete = (id: number) => {
-    const updatedNotes = notes.map(note =>
-      note.id === id ? { ...note, completed: !note.completed } : note
-    );
-    setNotes(updatedNotes);
-    saveNotes(updatedNotes);
-  };
+  const togglePin = async (id: number) => {
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
 
-  const togglePin = (id: number) => {
-    const updatedNotes = notes.map(note =>
-      note.id === id ? { ...note, pinned: !note.pinned } : note
-    );
-    setNotes(updatedNotes);
-    saveNotes(updatedNotes);
+    try {
+      const updatedNote = await noteService.update(id, { pinned: !note.pinned });
+      setNotes(notes.map(n => n.id === id ? updatedNote : n));
+    } catch (error) {
+      console.error('Error actualizando nota:', error);
+    }
   };
 
   const filteredNotes = notes
-    .filter(note => 
+    .filter(note =>
       note.content.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedCategory === 'all' || note.category === selectedCategory)
     )
@@ -169,7 +164,7 @@ export default function NotesManager() {
           <h4 style={{ margin: '0 0 15px 0', color: '#4a5568' }}>
             ✍️ Nueva Nota
           </h4>
-          
+
           <div style={{ marginBottom: '15px' }}>
             <label style={{ display: 'block', marginBottom: '5px', color: '#4a5568', fontWeight: 'bold' }}>
               Categoría:
@@ -302,7 +297,7 @@ export default function NotesManager() {
             color: '#718096',
             fontSize: '1.1rem'
           }}>
-            {searchTerm || selectedCategory !== 'all' 
+            {searchTerm || selectedCategory !== 'all'
               ? '🔍 No se encontraron notas que coincidan con tu búsqueda'
               : '📝 No hay notas aún. ¡Crea tu primera nota!'
             }
@@ -346,11 +341,11 @@ export default function NotesManager() {
                       }}>
                         {category?.name || '📝'}
                       </span>
-                      
+
                       {note.pinned && (
                         <span style={{ fontSize: '1.2rem' }}>📌</span>
                       )}
-                      
+
                       <span style={{
                         color: '#718096',
                         fontSize: '0.8rem'
@@ -391,8 +386,8 @@ export default function NotesManager() {
                     <button
                       onClick={() => toggleComplete(note.id)}
                       style={{
-                        background: note.completed 
-                          ? 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)' 
+                        background: note.completed
+                          ? 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)'
                           : 'rgba(255,255,255,0.3)',
                         border: 'none',
                         borderRadius: '4px',
@@ -438,8 +433,8 @@ export default function NotesManager() {
         textAlign: 'center'
       }}>
         <p style={{ margin: 0, color: '#4a5568', fontSize: '0.9rem' }}>
-          📊 Total de notas: {notes.length} | 
-          Completadas: {notes.filter(note => note.completed).length} | 
+          📊 Total de notas: {notes.length} |
+          Completadas: {notes.filter(note => note.completed).length} |
           Ancladas: {notes.filter(note => note.pinned).length}
         </p>
       </div>

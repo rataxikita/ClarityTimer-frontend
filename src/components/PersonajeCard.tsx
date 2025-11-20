@@ -6,9 +6,10 @@ interface PersonajeCardProps {
   personaje: PersonajeSanrio;
   inventario?: InventarioUsuario[];
   onCompraExitosa: () => void;
+  onViewCertificate?: () => void;
 }
 
-export default function PersonajeCard({ personaje, inventario = [], onCompraExitosa }: PersonajeCardProps) {
+export default function PersonajeCard({ personaje, inventario = [], onCompraExitosa, onViewCertificate }: PersonajeCardProps) {
   const { user, updateUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,8 +67,8 @@ export default function PersonajeCard({ personaje, inventario = [], onCompraExit
       }
     } catch (err: any) {
       console.error('Error en compra:', err);
-      const errorMsg = err.response?.data?.message 
-        || err.message 
+      const errorMsg = err.response?.data?.message
+        || err.message
         || 'Error al comprar el personaje. Verifica tu conexión.';
       setError(errorMsg);
     } finally {
@@ -88,8 +89,8 @@ export default function PersonajeCard({ personaje, inventario = [], onCompraExit
       onCompraExitosa(); // Recargar datos para actualizar el estado activo
     } catch (err: any) {
       console.error('Error activando personaje:', err);
-      const errorMsg = err.response?.data?.message 
-        || err.message 
+      const errorMsg = err.response?.data?.message
+        || err.message
         || 'Error al activar el personaje. Verifica tu conexión.';
       setError(errorMsg);
     } finally {
@@ -108,14 +109,14 @@ export default function PersonajeCard({ personaje, inventario = [], onCompraExit
       position: 'relative',
       overflow: 'hidden'
     }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'translateY(-5px)';
-      e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
-    }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-5px)';
+        e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+      }}
     >
       {/* Imagen del personaje */}
       <div style={{
@@ -248,24 +249,45 @@ export default function PersonajeCard({ personaje, inventario = [], onCompraExit
             ✓ Activo
           </button>
         ) : yaTienePersonaje ? (
-          <button
-            onClick={handleActivar}
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: '#4ecdc4',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.7 : 1
-            }}
-          >
-            {loading ? 'Activando...' : 'Activar Personaje'}
-          </button>
+          <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+            {onViewCertificate && (
+              <button
+                onClick={onViewCertificate}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: '#f1c40f',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+                }}
+              >
+                📜 Ver Certificado
+              </button>
+            )}
+            <button
+              onClick={handleActivar}
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#4ecdc4',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.7 : 1
+              }}
+            >
+              {loading ? 'Activando...' : 'Activar Personaje'}
+            </button>
+          </div>
         ) : puedeComprar ? (
           <button
             onClick={handleComprar}
@@ -301,11 +323,11 @@ export default function PersonajeCard({ personaje, inventario = [], onCompraExit
               cursor: 'not-allowed'
             }}
           >
-            {!personaje.disponible 
-              ? 'No disponible' 
+            {!personaje.disponible
+              ? 'No disponible'
               : user && user.puntosDisponibles < personaje.precioPuntos
-              ? `Necesitas ${personaje.precioPuntos - user.puntosDisponibles} puntos más`
-              : 'No disponible'}
+                ? `Necesitas ${personaje.precioPuntos - user.puntosDisponibles} puntos más`
+                : 'No disponible'}
           </button>
         )}
       </div>

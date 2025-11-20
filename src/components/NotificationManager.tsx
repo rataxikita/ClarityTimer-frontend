@@ -2,19 +2,19 @@ import { useEffect, useState } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 
 interface NotificationManagerProps {
-  isBreak: boolean;
-  isLongBreak: boolean;
-  session: number;
-  totalSessions: number;
+  isBreak?: boolean;
+  isLongBreak?: boolean;
+  session?: number;
+  totalSessions?: number;
   onSessionComplete?: () => void;
 }
 
-export default function NotificationManager({ 
-  isBreak, 
-  isLongBreak, 
-  session, 
-  totalSessions, 
-  onSessionComplete 
+export default function NotificationManager({
+  isBreak,
+  isLongBreak,
+  session,
+  totalSessions,
+  onSessionComplete
 }: NotificationManagerProps) {
   const { settings } = useSettings();
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
@@ -97,7 +97,7 @@ export default function NotificationManager({
     ];
 
     const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
-    
+
     showNotification(
       '💪 ¡Motivación!',
       randomMessage,
@@ -180,13 +180,13 @@ export default function NotificationManager({
               {notificationsEnabled ? '✅ Notificaciones Activas' : '🔇 Notificaciones Desactivadas'}
             </h4>
             <p style={{ margin: 0, opacity: 0.9, fontSize: '0.9rem' }}>
-              {notificationsEnabled 
+              {notificationsEnabled
                 ? 'Recibirás alertas cuando terminen las sesiones y descansos'
                 : 'Activa las notificaciones para recibir alertas importantes'
               }
             </p>
           </div>
-          
+
           {!notificationsEnabled && (
             <button
               onClick={requestNotificationPermission}
@@ -245,7 +245,7 @@ export default function NotificationManager({
           textAlign: 'center'
         }}>
           <p style={{ margin: 0, color: '#4a5568', fontSize: '0.9rem' }}>
-            💡 Las notificaciones te ayudarán a mantener el foco y celebrar tus logros. 
+            💡 Las notificaciones te ayudarán a mantener el foco y celebrar tus logros.
             Puedes desactivarlas en cualquier momento desde la configuración de tu navegador.
           </p>
         </div>
