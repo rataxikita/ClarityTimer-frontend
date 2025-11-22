@@ -81,3 +81,30 @@ export type TimerState = typeof TIMER_STATES[keyof typeof TIMER_STATES];
 export type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];
 export type NoteCategory = typeof NOTE_CATEGORIES[keyof typeof NOTE_CATEGORIES];
 
+// Schema de validación con Zod
+import { z } from 'zod';
+
+export const settingsSchema = z.object({
+  studyTime: z.number()
+    .min(TIME_CONSTRAINTS.STUDY_TIME.MIN)
+    .max(TIME_CONSTRAINTS.STUDY_TIME.MAX)
+    .default(TIME_CONSTRAINTS.STUDY_TIME.DEFAULT),
+  breakTime: z.number()
+    .min(TIME_CONSTRAINTS.BREAK_TIME.MIN)
+    .max(TIME_CONSTRAINTS.BREAK_TIME.MAX)
+    .default(TIME_CONSTRAINTS.BREAK_TIME.DEFAULT),
+  longBreakTime: z.number()
+    .min(TIME_CONSTRAINTS.BREAK_TIME.MIN)
+    .max(TIME_CONSTRAINTS.BREAK_TIME.MAX)
+    .default(15),
+  sessions: z.number()
+    .min(TIME_CONSTRAINTS.TOTAL_SESSIONS.MIN)
+    .max(TIME_CONSTRAINTS.TOTAL_SESSIONS.MAX)
+    .default(TIME_CONSTRAINTS.TOTAL_SESSIONS.DEFAULT),
+  autoMode: z.boolean().default(false),
+  soundEnabled: z.boolean().default(true),
+  theme: z.enum(['default', 'sunset', 'ocean', 'forest', 'lavender', 'midnight', 'kitty', 'melody', 'kuromi', 'pompompurin', 'cinnamoroll', 'pochacco']).default('default'),
+});
+
+export type Settings = z.infer<typeof settingsSchema>;
+

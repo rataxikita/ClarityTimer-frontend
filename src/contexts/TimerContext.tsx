@@ -15,14 +15,14 @@ interface TimerContextType {
   session: number;
   isPaused: boolean;
   dailyProgress: number;
-  
+
   // Estado de notificaciones
   playNotification: boolean;
-  
+
   // Funciones del temporizador
   toggleTimer: () => void;
   resetTimer: () => void;
-  
+
   // Funciones de sonido
   setPlayNotification: (value: boolean) => void;
 }
@@ -46,7 +46,7 @@ interface TimerProviderProps {
 export const TimerProvider = ({ children }: TimerProviderProps) => {
   const { settings } = useSettings();
   const { user, updateUser } = useAuth();
-  
+
   // Estado del temporizador
   const [minutes, setMinutes] = useState(settings.studyTime);
   const [seconds, setSeconds] = useState(0);
@@ -55,22 +55,25 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
   const [isLongBreak, setIsLongBreak] = useState(false);
   const [session, setSession] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
-  
+
   // Estado de sesión en backend
   const [sesionId, setSesionId] = useState<number | null>(null);
   const [detallesSesion, setDetallesSesion] = useState<DetalleSesionRequest[]>([]);
+  // 🎯 PRESENTACIÓN: useRef para horaInicio - NO causa re-renders
   const horaInicioSesion = useRef<Date | null>(null);
-  
+
   // Estado de notificaciones
   const [playNotification, setPlayNotification] = useState(false);
-  
+
   // Progreso diario
   const [dailyProgress, setDailyProgress] = useState(0);
-  
+
+  // 🎯 PRESENTACIÓN: useRef para el interval - referencia mutable
   const interval = useRef<NodeJS.Timeout | null>(null);
   const isIntervalActive = useRef<boolean>(false);
 
-  // Refs para mantener valores actuales sin causar re-renders
+  // 🎯 PRESENTACIÓN: Refs para evitar problemas de closure en el interval
+  // Mantienen valores actuales SIN causar re-renders
   const minutesRef = useRef(minutes);
   const secondsRef = useRef(seconds);
   const isBreakRef = useRef(isBreak);
@@ -133,10 +136,13 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
     }
   }, [settings.studyTime, settings.breakTime, isBreak, isLongBreak, isRunning, isPaused]);
 
-  // Lógica del temporizador - SOLO isRunning como dependencia
+
+  // ⭐⭐⭐ PRESENTACIÓN: CORAZÓN DEL TIMER ⭐⭐⭐
+  // Este useEffect crea el setInterval que decrementa cada segundo
+  // Usa las refs para evitar problemas de closure 
   useEffect(() => {
     console.log('🟡 useEffect intervalo ejecutado - isRunning:', isRunning);
-    
+
     // Si no está corriendo, solo limpiar y salir
     if (!isRunning) {
       console.log('🟡 Limpiando intervalo (no está corriendo)');
@@ -147,33 +153,34 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
       isIntervalActive.current = false;
       return;
     }
-    
+
     // Si ya hay un intervalo activo, no crear otro (previene duplicados)
     if (isIntervalActive.current && interval.current) {
       console.log('🟡 Ya hay un intervalo activo, no crear otro');
       return;
     }
-    
+
     // Limpiar cualquier intervalo existente
     if (interval.current) {
       console.log('🟡 Limpiando intervalo existente antes de crear uno nuevo');
       clearInterval(interval.current);
       interval.current = null;
     }
-    
+    // 🎯 PRESENTACIÓN: setInterval - se ejecuta CADA SEGUNDO
+
     console.log('🟡 Creando intervalo nuevo');
     isIntervalActive.current = true;
-    
+
     // Crear el intervalo
     interval.current = setInterval(() => {
       console.log('⏰ Tick del intervalo - mins:', minutesRef.current, 'secs:', secondsRef.current);
-      
-      // Si ambos son 0, terminar el período
+
+      // 🎯 PRESENTACIÓN: Cuando llega a 0:0, llama a handleEndOfPeriod
       if (minutesRef.current === 0 && secondsRef.current === 0) {
         handleEndOfPeriod();
         return;
       }
-      
+
       // Si los segundos son 0 pero hay minutos, restar un minuto y poner segundos en 59
       if (secondsRef.current === 0 && minutesRef.current > 0) {
         setMinutes(minutesRef.current - 1);
@@ -183,8 +190,9 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
         setSeconds(secondsRef.current - 1);
       }
     }, 1000);
-    
-    // Cleanup: limpiar intervalo cuando el componente se desmonte o isRunning cambie
+
+    // 🎯 PRESENTACIÓN: Cleanup function - CRÍTICO para evitar memory leaks
+    // Se ejecuta cuando el componente se desmonta o isRunning cambia
     return () => {
       console.log('🟡 Cleanup del useEffect intervalo');
       if (interval.current) {
@@ -203,14 +211,19 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
     const segundos = fecha.getSeconds().toString().padStart(2, '0');
     return `${horas}:${minutos}:${segundos}`;
   };
-
+  // 🔥🔥🔥 PRESENTACIÓN: FUNCIÓN MÁS COMPLEJA - 120 LÍNEAS 🔥🔥🔥
+  // Maneja qué pasa cuando el timer llega a 0:0
+  // PRIMERO: Guarda sesión en backend
+  // SEGUNDO: Transiciona entre trabajo ↔ descanso  
+  // TERCERO: Respeta modo automático
   const handleEndOfPeriod = async () => {
     const ahora = new Date();
-    const duracionMinutos = isBreakRef.current 
+    const duracionMinutos = isBreakRef.current
       ? (isLongBreakRef.current ? settings.breakTime * 3 : settings.breakTime)
       : settings.studyTime;
-    
-    // Si es un pomodoro de trabajo completado, agregarlo a los detalles
+
+    // 🎯 PRESENTACIÓN: PRIMERO - Guardar sesión en backend
+    // Crea objeto con todos los datos: fecha, horas, tipo, duración
     if (!isBreakRef.current && user && user.personajeActivoId) {
       const nuevoDetalle: DetalleSesionRequest = {
         numeroPomodoro: sessionRef.current,
@@ -221,31 +234,31 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
         horaInicio: formatearHora(horaInicioSesion.current),
         horaFin: formatearHora(ahora)
       };
-      
+
       const detallesActualizados = [...detallesSesion, nuevoDetalle];
       setDetallesSesion(detallesActualizados);
-      
+
       // Si se completaron todos los pomodoros, crear la sesión y completarla
       if (sessionRef.current >= settings.totalSessions) {
         try {
           console.log('🎮 Creando sesión con detalles:', detallesActualizados);
-          
+
           const sesionCreada = await sesionService.crear({
             personajeUsadoId: user.personajeActivoId,
             detalles: detallesActualizados
           });
-          
+
           console.log('✅ Sesión creada con ID:', sesionCreada.id);
-          
+
           // Esperar un momento antes de completar
           await new Promise(resolve => setTimeout(resolve, 500));
-          
+
           await sesionService.completar(sesionCreada.id);
           console.log('✅ Sesión completada, puntos otorgados');
-          
+
           await updateUser();
           console.log('✅ Usuario actualizado');
-          
+
           setSesionId(null);
           setDetallesSesion([]);
           horaInicioSesion.current = null;
@@ -259,8 +272,8 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
         }
       }
     }
-    
-    // Si es un descanso completado, agregarlo a los detalles también
+
+    // 🎯 PRESENTACIÓN: SEGUNDO - Transición entre fases
     if (isBreakRef.current) {
       const nuevoDetalle: DetalleSesionRequest = {
         numeroPomodoro: sessionRef.current,
@@ -271,11 +284,11 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
         horaInicio: formatearHora(horaInicioSesion.current),
         horaFin: formatearHora(ahora)
       };
-      
+
       const detallesActualizados = [...detallesSesion, nuevoDetalle];
       setDetallesSesion(detallesActualizados);
     }
-    
+
     if (isBreakRef.current) {
       setIsBreak(false);
       setIsLongBreak(false);
@@ -285,6 +298,7 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
     } else {
       setIsBreak(true);
       const newSession = sessionRef.current + 1;
+      // 🎯 PRESENTACIÓN: Cada 4 sesiones = descanso LARGO
       if (newSession % 4 === 0) {
         setIsLongBreak(true);
         setMinutes(settings.breakTime * 3);
@@ -294,7 +308,7 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
       }
       setSeconds(0);
     }
-    
+
     // Actualizar progreso diario SOLO cuando se completa un pomodoro de trabajo
     if (!isBreakRef.current) {
       const saved = localStorage.getItem(STORAGE_KEYS.POMODORO_PROGRESS);
@@ -315,10 +329,11 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
         count: newCount
       }));
     }
-    
+
     setPlayNotification(true);
-    
-    // Si está en modo automático y no se completaron todas las sesiones, continuar
+
+    // 🎯 PRESENTACIÓN: TERCERO - Respeta modo automático
+    // Si autoMode está activado, continúa automáticamente
     if (settings.autoMode && sessionRef.current < settings.totalSessions) {
       setIsRunning(true);
     } else {
@@ -328,7 +343,7 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
 
   const toggleTimer = () => {
     console.log('🔵 toggleTimer llamado - isRunning:', isRunning, 'isPaused:', isPaused);
-    
+
     if (!isRunning) {
       // Limpiar cualquier intervalo existente PRIMERO
       if (interval.current) {
@@ -336,17 +351,18 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
         interval.current = null;
         isIntervalActive.current = false;
       }
-      
+
       // Solo resetear el tiempo si NO está pausado (es decir, es un inicio fresco)
       if (!isPaused) {
         const newMinutes = !isBreak ? settings.studyTime : (isLongBreak ? settings.breakTime * 3 : settings.breakTime);
         console.log('🔵 Iniciando nuevo ciclo con', newMinutes, 'minutos');
-        
+
         if (!isBreak && !horaInicioSesion.current) {
           horaInicioSesion.current = new Date();
         }
-        
-        // Usar flushSync para forzar actualizaciones síncronas
+
+        // 🎯 PRESENTACIÓN: flushSync - Fuerza actualizaciones SÍNCRONAS
+        // React normalmente agrupa updates, pero el timer necesita exactitud
         flushSync(() => {
           setMinutes(newMinutes);
           setSeconds(0);
@@ -355,7 +371,7 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
         // Si está pausado, solo reanudar con el tiempo actual
         console.log('🔵 Reanudando desde pausa - mins:', minutes, 'secs:', seconds);
       }
-      
+
       // Marcar como no pausado y iniciar
       setIsPaused(false);
       setIsRunning(true);
