@@ -99,7 +99,9 @@ const migrateSettings = (storedData: unknown): Settings => {
   }
 };
 
-// Función para cargar configuración desde localStorage
+// 🎯 PRESENTACIÓN: Función para cargar configuración desde localStorage
+// Usa safeParse de Zod: si los datos son inválidos, usa los defaults
+// Esto protege contra datos corruptos
 const loadSettingsFromStorage = (): Settings => {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.POMODORO_SETTINGS);
@@ -110,9 +112,15 @@ const loadSettingsFromStorage = (): Settings => {
     const parsed = JSON.parse(stored);
     const migratedSettings = migrateSettings(parsed);
     
-    // Validar con zod
-    const validatedSettings = SettingsSchema.parse(migratedSettings);
-    return validatedSettings;
+    // 🎯 PRESENTACIÓN: Validar con zod - safeParse
+    // Si los datos son inválidos, usa los defaults
+    const result = SettingsSchema.safeParse(migratedSettings);
+    if (result.success) {
+      return result.data;
+    } else {
+      console.error('Error validando configuración:', result.error);
+      return DEFAULT_SETTINGS;
+    }
   } catch (error) {
     console.error('Error cargando configuración:', error);
     return DEFAULT_SETTINGS;
@@ -139,17 +147,22 @@ interface SettingsProviderProps {
 }
 
 export const SettingsProvider = ({ children }: SettingsProviderProps) => {
-  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  // 🎯 PRESENTACIÓN: useState con función (lazy initialization)
+  // En vez de pasar un valor directo, pasamos una función
+  // Esto significa que solo se ejecuta UNA VEZ al montar, no en cada render
+  // Carga desde localStorage o usa defaults
+  const [settings, setSettings] = useState<Settings>(() => loadSettingsFromStorage());
   const [isLoading, setIsLoading] = useState(true);
 
-  // Cargar configuración al inicializar
+  // 🎯 PRESENTACIÓN: useEffect de sincronización
+  // Sincroniza automáticamente cualquier cambio de configuración con localStorage
+  // El usuario cambia algo → se guarda automáticamente
   useEffect(() => {
-    const loadedSettings = loadSettingsFromStorage();
-    setSettings(loadedSettings);
     setIsLoading(false);
   }, []);
 
-  // Función para actualizar configuración
+  // 🎯 PRESENTACIÓN: Función para actualizar configuración
+  // Valida con Zod antes de guardar
   const updateSettings = useCallback((newSettings: Partial<Settings>) => {
     try {
       // Combinar con configuración actual

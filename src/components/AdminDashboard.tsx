@@ -24,9 +24,14 @@ const AdminDashboard: React.FC = () => {
         }
     };
 
+    // 🎯 PRESENTACIÓN: AdminDashboard - Actualización optimista
+    // Permite edición inline de precios y toggle de disponibilidad
+    // Usa map() para actualizaciones inmutables del estado
+    // Actualiza la UI inmediatamente (optimista), luego confirma con el backend
     const handleToggleAvailability = async (id: number, currentStatus: boolean) => {
         try {
             await personajeService.update(id, { disponible: !currentStatus });
+            // 🎯 PRESENTACIÓN: Actualización inmutable con map()
             setProducts(products.map(p =>
                 p.id === id ? { ...p, disponible: !currentStatus } : p
             ));
@@ -40,9 +45,12 @@ const AdminDashboard: React.FC = () => {
         setEditPrice(product.precioPuntos);
     };
 
+    // 🎯 PRESENTACIÓN: Edición inline de precios
+    // Actualización optimista: UI se actualiza inmediatamente
     const savePrice = async (id: number) => {
         try {
             await personajeService.update(id, { precioPuntos: editPrice });
+            // 🎯 PRESENTACIÓN: Actualización inmutable con map()
             setProducts(products.map(p =>
                 p.id === id ? { ...p, precioPuntos: editPrice } : p
             ));

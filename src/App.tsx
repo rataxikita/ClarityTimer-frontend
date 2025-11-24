@@ -178,6 +178,10 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
+      {/* 🎯 PRESENTACIÓN: Providers anidados - Conexión de Contextos */}
+      {/* Están anidados: AuthProvider envuelve todo, luego SettingsProvider, luego TimerProvider */}
+      {/* IMPORTANTE: TimerContext usa SettingsContext para saber cuántos minutos configuró el usuario */}
+      {/* Hay una dependencia entre contextos */}
       <AuthProvider>
         <SettingsProvider>
           <TimerProvider>
@@ -185,7 +189,8 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
-              {/* Ruta para Vendedores y Admins */}
+              {/* 🎯 PRESENTACIÓN: Rutas protegidas por rol */}
+              {/* /vendedor solo para VENDEDOR y ADMIN */}
               <Route
                 path="/vendedor"
                 element={
@@ -195,7 +200,7 @@ function App() {
                 }
               />
 
-              {/* Ruta para Admins */}
+              {/* 🎯 PRESENTACIÓN: /admin solo para ADMIN */}
               <Route
                 path="/admin"
                 element={
@@ -205,7 +210,7 @@ function App() {
                 }
               />
 
-              {/* Ruta principal para Clientes (SOLO CLIENTES) */}
+              {/* 🎯 PRESENTACIÓN: Ruta principal solo para CLIENTE */}
               {/* Si un ADMIN intenta entrar aquí, RoleRoute lo redirigirá a /admin */}
               <Route
                 path="/*"

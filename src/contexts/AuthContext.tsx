@@ -29,6 +29,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<UsuarioResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // 🎯 PRESENTACIÓN: useEffect que carga desde localStorage
+  // Al cargar la aplicación, recupera el token y el usuario desde localStorage
+  // Esto permite que la sesión persista aunque recargues la página
   useEffect(() => {
     // Cargar usuario desde localStorage al iniciar
     const storedUser = authService.getStoredUser();
@@ -53,6 +56,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUser(response.usuario);
   };
 
+  // 🎯 PRESENTACIÓN: función logout
+  // Cuando el usuario cierra sesión, limpia todo el estado y redirige al login
   const logout = () => {
     authService.logout();
     setUser(null);

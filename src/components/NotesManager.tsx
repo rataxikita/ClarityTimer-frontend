@@ -92,14 +92,20 @@ export default function NotesManager() {
     }
   };
 
+  // 🎯 PRESENTACIÓN: NotesManager - Filtrado y ordenamiento multinivel
+  // Filtrado por categoría y ordenamiento: primero las notas fijadas, luego por fecha descendente
+  // Usa actualizaciones optimistas: actualiza la UI inmediatamente, luego confirma con el backend
   const filteredNotes = notes
     .filter(note =>
       note.content.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (selectedCategory === 'all' || note.category === selectedCategory)
     )
     .sort((a, b) => {
+      // 🎯 PRESENTACIÓN: Ordenamiento multinivel
+      // 1. Primero las notas fijadas (pinned)
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
+      // 2. Luego por fecha descendente (más recientes primero)
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 

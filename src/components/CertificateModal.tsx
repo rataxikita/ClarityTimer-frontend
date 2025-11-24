@@ -13,6 +13,8 @@ export default function CertificateModal({ isOpen, onClose, item }: CertificateM
 
     if (!isOpen) return null;
 
+    // 🎯 PRESENTACIÓN: Certificados se generan dinámicamente como HTML
+    // Se imprimen usando window.print() - abre el diálogo de impresión del navegador
     const handlePrint = () => {
         window.print();
     };

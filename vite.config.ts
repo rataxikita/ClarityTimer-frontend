@@ -17,6 +17,9 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    // 🎯 PRESENTACIÓN: Proxy de Vite
+    // Todas las peticiones a /api/ se redirigen automáticamente a localhost:8080/api/v1/
+    // Esto evita problemas de CORS en desarrollo
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

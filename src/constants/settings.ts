@@ -81,7 +81,11 @@ export type TimerState = typeof TIMER_STATES[keyof typeof TIMER_STATES];
 export type NotificationType = typeof NOTIFICATION_TYPES[keyof typeof NOTIFICATION_TYPES];
 export type NoteCategory = typeof NOTE_CATEGORIES[keyof typeof NOTE_CATEGORIES];
 
-// Schema de validación con Zod
+// 🎯 PRESENTACIÓN: Schema de validación con Zod
+// Zod es validación en runtime. TypeScript solo existe en tiempo de compilación
+// Cuando cargas datos de localStorage, de una API, o de un formulario, necesitas validar
+// Cada campo tiene constraints: studyTime debe ser un número entre 1 y 60
+// Cada campo tiene un .default() por si falta
 import { z } from 'zod';
 
 export const settingsSchema = z.object({
@@ -105,6 +109,9 @@ export const settingsSchema = z.object({
   soundEnabled: z.boolean().default(true),
   theme: z.enum(['default', 'sunset', 'ocean', 'forest', 'lavender', 'midnight', 'kitty', 'melody', 'kuromi', 'pompompurin', 'cinnamoroll', 'pochacco']).default('default'),
 });
+
+// 🎯 PRESENTACIÓN: z.infer<typeof schema> - TypeScript conoce los tipos
+// Las ventajas: DRY (defines el schema una vez), type safety, protección en runtime
 
 export type Settings = z.infer<typeof settingsSchema>;
 

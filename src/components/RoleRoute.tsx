@@ -7,6 +7,10 @@ interface RoleRouteProps {
     allowedRoles: string[];
 }
 
+// 🎯 PRESENTACIÓN: RoleRoute - Protege rutas según el rol del usuario
+// Verifica permisos. Si no hay usuario, redirige al login
+// Si el usuario tiene un rol que no está permitido, redirige a su dashboard correspondiente
+// IMPORTANTE: Esto es solo para UX. La verdadera seguridad está en el backend
 export default function RoleRoute({ children, allowedRoles }: RoleRouteProps) {
     const { user, loading } = useAuth();
 
@@ -14,10 +18,12 @@ export default function RoleRoute({ children, allowedRoles }: RoleRouteProps) {
         return <div>Cargando...</div>;
     }
 
+    // 🎯 PRESENTACIÓN: Si no hay usuario → redirige al login
     if (!user) {
         return <Navigate to="/login" replace />;
     }
 
+    // 🎯 PRESENTACIÓN: Si el rol no está permitido → redirige según su rol
     if (!allowedRoles.includes(user.rol)) {
         // Redirigir según el rol del usuario si intenta acceder a una ruta no permitida
         if (user.rol === 'ADMIN') return <Navigate to="/admin" replace />;
