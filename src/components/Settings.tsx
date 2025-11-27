@@ -1,15 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
+import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/authService';
 import {
   TIME_CONSTRAINTS
 } from '../constants/settings';
 
 export default function Settings() {
   const { settings, updateSettings } = useSettings();
+  const { user } = useAuth();
   const [studyTime, setStudyTime] = useState<number | string>(settings.studyTime);
   const [breakTime, setBreakTime] = useState<number | string>(settings.breakTime);
   const [totalSessions, setTotalSessions] = useState<number | string>(settings.totalSessions);
   const [autoMode, setAutoMode] = useState(settings.autoMode);
+  
+  // Estado para cambio de contraseña
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordError, setPasswordError] = useState<string>('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
 
   // Actualizar estado local cuando cambie la configuración
   useEffect(() => {
@@ -85,6 +98,56 @@ export default function Settings() {
       }, 3000);
     } else {
       alert(`Error al guardar configuración: ${result.error}`);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    setPasswordError('');
+    setPasswordSuccess(false);
+
+    // Validaciones
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      setPasswordError('Por favor, completa todos los campos');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError('La nueva contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('Las contraseñas nuevas no coinciden');
+      return;
+    }
+
+    if (passwordData.currentPassword === passwordData.newPassword) {
+      setPasswordError('La nueva contraseña debe ser diferente a la actual');
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    try {
+      await authService.changePassword(passwordData.currentPassword, passwordData.newPassword);
+      setPasswordSuccess(true);
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+      
+      // Ocultar mensaje de éxito después de 5 segundos
+      setTimeout(() => {
+        setPasswordSuccess(false);
+      }, 5000);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          'Error al cambiar la contraseña. Verifica que la contraseña actual sea correcta.';
+      setPasswordError(errorMessage);
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -280,6 +343,154 @@ export default function Settings() {
           }
         </p>
       </div>
+
+      {/* Sección de Cambio de Contraseña */}
+      {user && (
+        <div style={{
+          background: 'white',
+          padding: '20px',
+          borderRadius: '10px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+          marginBottom: '30px',
+          border: '2px solid #e2e8f0'
+        }}>
+          <h3 style={{
+            marginTop: 0,
+            marginBottom: '20px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: '#4a5568'
+          }}>
+            🔐 Cambiar Contraseña
+          </h3>
+
+          {passwordSuccess && (
+            <div style={{
+              background: '#d4edda',
+              color: '#155724',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '15px',
+              border: '1px solid #c3e6cb'
+            }}>
+              ✅ Contraseña actualizada exitosamente
+            </div>
+          )}
+
+          {passwordError && (
+            <div style={{
+              background: '#f8d7da',
+              color: '#721c24',
+              padding: '12px',
+              borderRadius: '8px',
+              marginBottom: '15px',
+              border: '1px solid #f5c6cb'
+            }}>
+              ❌ {passwordError}
+            </div>
+          )}
+
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              color: '#4a5568'
+            }}>
+              Contraseña Actual
+            </label>
+            <input
+              type="password"
+              value={passwordData.currentPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '2px solid #e2e8f0',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+              placeholder="Ingresa tu contraseña actual"
+            />
+          </div>
+
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              color: '#4a5568'
+            }}>
+              Nueva Contraseña
+            </label>
+            <input
+              type="password"
+              value={passwordData.newPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '2px solid #e2e8f0',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+              placeholder="Mínimo 6 caracteres"
+            />
+          </div>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              color: '#4a5568'
+            }}>
+              Confirmar Nueva Contraseña
+            </label>
+            <input
+              type="password"
+              value={passwordData.confirmPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '2px solid #e2e8f0',
+                fontSize: '14px',
+                boxSizing: 'border-box'
+              }}
+              placeholder="Repite la nueva contraseña"
+            />
+          </div>
+
+          <button
+            onClick={handlePasswordChange}
+            disabled={passwordLoading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              border: 'none',
+              borderRadius: '8px',
+              background: passwordLoading
+                ? '#a0aec0'
+                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              cursor: passwordLoading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+            }}
+          >
+            {passwordLoading ? '⏳ Cambiando...' : '🔐 Cambiar Contraseña'}
+          </button>
+        </div>
+      )}
 
       <div style={{ textAlign: 'center' }}>
         <button

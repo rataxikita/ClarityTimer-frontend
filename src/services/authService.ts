@@ -72,5 +72,12 @@ export const authService = {
   isAuthenticated: (): boolean => {
     return !!localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
   },
+
+  changePassword: async (currentPassword: string, newPassword: string): Promise<void> => {
+    await api.post('/auth/change-password', {
+      currentPassword,
+      newPassword,
+    });
+  },
 };
 

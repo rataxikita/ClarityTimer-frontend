@@ -360,16 +360,11 @@ En la pestaña **"📝 Notas"** puedes:
 - Muestra: fecha, tipo (ganado/gastado), cantidad, descripción
 - Útil para rastrear tu actividad
 
-**Ranking de Usuarios:**
-- Top 10 usuarios con más puntos
-- Tu posición en el ranking (si estás en el top 10)
-- Motiva la competencia sana
 
 ### 7.2 Interpretar tus Estadísticas
 
 - **Puntos Totales vs Disponibles**: La diferencia son los puntos que has gastado en personajes
 - **Racha**: Mantén tu racha completando al menos una sesión cada día
-- **Ranking**: Compite con otros usuarios por los primeros lugares
 
 ---
 
@@ -393,9 +388,17 @@ En la pestaña **"📝 Notas"** puedes:
 - **Sonidos habilitados**: Activa/desactiva las notificaciones de sonido
 - Cuando está activado, escucharás una campana al completar cada fase
 
-**Tema:**
-- Selecciona el tema visual (si está disponible)
-- Por defecto: Tema Sanrio (colorido y alegre)
+**Cambio de Contraseña:**
+- Puedes cambiar tu contraseña desde la sección **"🔐 Cambiar Contraseña"**
+- Para cambiar tu contraseña:
+  1. Ingresa tu **contraseña actual**
+  2. Ingresa tu **nueva contraseña** (mínimo 6 caracteres)
+  3. **Confirma la nueva contraseña**
+  4. Haz clic en **"🔐 Cambiar Contraseña"**
+- La nueva contraseña debe ser diferente a la actual
+- Recibirás un mensaje de confirmación cuando la contraseña se haya actualizado exitosamente
+
+
 
 ### 8.3 Guardar Configuración
 
@@ -616,9 +619,6 @@ Comparte tus sugerencias con el equipo de desarrollo.
 
 ## 14. Preguntas Frecuentes (FAQ)
 
-### ¿Puedo cambiar mi contraseña?
-
-Actualmente no hay una funcionalidad para cambiar la contraseña desde la interfaz. Contacta al administrador si necesitas cambiar tu contraseña.
 
 ### ¿Puedo transferir puntos a otro usuario?
 
@@ -643,6 +643,10 @@ No, ClarityTimer requiere conexión a internet para funcionar, ya que se conecta
 ### ¿Cómo cambio mi rol?
 
 Solo un ADMIN puede cambiar roles de usuarios. Si necesitas cambiar tu rol, contacta a un administrador.
+
+### ¿Puedo cambiar mi contraseña?
+
+Sí, puedes cambiar tu contraseña desde la página de **Configuración**. Ve a **"⚙️ Configuración"** y busca la sección **"🔐 Cambiar Contraseña"**. Necesitarás ingresar tu contraseña actual y la nueva contraseña (mínimo 6 caracteres). La nueva contraseña debe ser diferente a la actual.
 
 ---
 
