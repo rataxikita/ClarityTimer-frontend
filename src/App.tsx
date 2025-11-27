@@ -16,6 +16,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import RoleRoute from './components/RoleRoute';
 import VendedorDashboard from './components/VendedorDashboard';
 import AdminDashboard from './components/AdminDashboard';
+import UserManager from './components/UserManager';
 
 interface Tab {
   key: string;
@@ -81,9 +82,11 @@ function UserInfo() {
 }
 
 function AppContent() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('timer');
 
-  const tabs: Tab[] = [
+  // Tabs base para CLIENTE
+  const baseTabs: Tab[] = [
     { key: 'timer', name: '⏰ Temporizador', component: TimerComponent },
     { key: 'tienda', name: '🛍️ Tienda', component: TiendaPersonajes },
     { key: 'inventario', name: '🎁 Inventario', component: Inventario },
@@ -92,6 +95,15 @@ function AppContent() {
     { key: 'notifications', name: '🔔 Notificaciones', component: NotificationManager },
     { key: 'settings', name: '⚙️ Configuración', component: Settings }
   ];
+
+  // Si es ADMIN, agregar pestañas de administración
+  const tabs: Tab[] = user?.rol === 'ADMIN' 
+    ? [
+        ...baseTabs,
+        { key: 'admin-products', name: '🛡️ Productos', component: AdminDashboard },
+        { key: 'admin-users', name: '👥 Usuarios', component: UserManager }
+      ]
+    : baseTabs;
 
   const ActiveComponent = tabs.find(tab => tab.key === activeTab)?.component;
 
@@ -210,12 +222,12 @@ function App() {
                 }
               />
 
-              {/* 🎯 PRESENTACIÓN: Ruta principal solo para CLIENTE */}
-              {/* Si un ADMIN intenta entrar aquí, RoleRoute lo redirigirá a /admin */}
+              {/* 🎯 PRESENTACIÓN: Ruta principal para CLIENTE y ADMIN */}
+              {/* ADMIN puede acceder a todas las rutas incluyendo la raíz */}
               <Route
                 path="/*"
                 element={
-                  <RoleRoute allowedRoles={['CLIENTE']}>
+                  <RoleRoute allowedRoles={['CLIENTE', 'ADMIN']}>
                     <AppContent />
                   </RoleRoute>
                 }

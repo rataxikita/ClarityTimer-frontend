@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { personajeService, PersonajeSanrio } from '../services/personajeService';
-import { useAuth } from '../contexts/AuthContext';
 
 const AdminDashboard: React.FC = () => {
-    const { logout } = useAuth();
     const [products, setProducts] = useState<PersonajeSanrio[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -61,35 +59,20 @@ const AdminDashboard: React.FC = () => {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f0f2f5', fontFamily: 'Arial, sans-serif' }}>
-            {/* Navbar */}
-            <nav style={{ background: '#2c3e50', padding: '15px 30px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <h1 style={{ margin: 0, fontSize: '1.5rem' }}>🛡️ Panel de Administrador</h1>
-                    <span style={{ background: '#e74c3c', padding: '5px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold' }}>ADMIN</span>
-                </div>
-                <button
-                    onClick={logout}
-                    style={{ background: '#c0392b', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
-                >
-                    Cerrar Sesión
-                </button>
-            </nav>
+        <div>
+            <div style={{ marginBottom: '20px' }}>
+                <h2 style={{ margin: 0, color: '#2c3e50' }}>🛡️ Gestión de Productos (Personajes)</h2>
+                <p style={{ color: '#7f8c8d', marginTop: '5px' }}>
+                    Total: {products.length} personajes
+                </p>
+            </div>
 
-            <div style={{ maxWidth: '1200px', margin: '30px auto', padding: '0 20px' }}>
+            {loading ? (
+                <div style={{ textAlign: 'center', padding: '50px' }}>Cargando productos...</div>
+            ) : (
+                <div style={{ overflowX: 'auto' }}>
 
-                {/* Content */}
-                <div style={{ background: 'white', borderRadius: '15px', padding: '30px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
-
-                    {loading ? (
-                        <div style={{ textAlign: 'center', padding: '50px' }}>Cargando panel...</div>
-                    ) : (
-                        <div>
-                            <div style={{ marginBottom: '20px' }}>
-                                <h2 style={{ margin: 0, color: '#2c3e50' }}>Gestión de Productos (Personajes)</h2>
-                            </div>
-
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                 <thead>
                                     <tr style={{ background: '#f8f9fa', textAlign: 'left' }}>
                                         <th style={{ padding: '15px', borderBottom: '2px solid #e9ecef' }}>ID</th>
@@ -177,10 +160,8 @@ const AdminDashboard: React.FC = () => {
                                     ))}
                                 </tbody>
                             </table>
-                        </div>
-                    )}
                 </div>
-            </div>
+            )}
         </div>
     );
 };

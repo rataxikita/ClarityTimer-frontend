@@ -24,9 +24,15 @@ export default function RoleRoute({ children, allowedRoles }: RoleRouteProps) {
     }
 
     // 🎯 PRESENTACIÓN: Si el rol no está permitido → redirige según su rol
+    // ADMIN puede acceder a rutas de CLIENTE también
     if (!allowedRoles.includes(user.rol)) {
+        // Si ADMIN intenta acceder a una ruta de CLIENTE, permitirlo
+        if (user.rol === 'ADMIN' && allowedRoles.includes('CLIENTE')) {
+            return <>{children}</>;
+        }
+        
         // Redirigir según el rol del usuario si intenta acceder a una ruta no permitida
-        if (user.rol === 'ADMIN') return <Navigate to="/admin" replace />;
+        if (user.rol === 'ADMIN') return <Navigate to="/" replace />;
         if (user.rol === 'VENDEDOR') return <Navigate to="/vendedor" replace />;
 
         // Si es CLIENTE o cualquier otro rol y no tiene permiso, ir al inicio (que para cliente es la app)

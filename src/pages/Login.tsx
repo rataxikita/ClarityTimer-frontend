@@ -29,7 +29,14 @@ export default function Login() {
       await login(formData);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+      console.error('Error en login:', err);
+      console.error('Response data:', err.response?.data);
+      // Mostrar el mensaje del backend si está disponible
+      // Priorizar el mensaje del backend sobre el mensaje genérico
+      const errorMessage = err.response?.data?.message || 
+                          err.message || 
+                          'Error al iniciar sesión. Verifica tus credenciales.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

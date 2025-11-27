@@ -238,8 +238,10 @@ export const TimerProvider = ({ children }: TimerProviderProps) => {
       const detallesActualizados = [...detallesSesion, nuevoDetalle];
       setDetallesSesion(detallesActualizados);
 
-      // Si se completaron todos los pomodoros, crear la sesión y completarla
-      if (sessionRef.current >= settings.totalSessions) {
+      // Si se completaron todos los pomodoros de trabajo, crear la sesión y completarla
+      // sessionRef.current es el número de la sesión actual (1-indexed)
+      // Si tengo 4 sesiones y estoy en la sesión 4, ya completé todas
+      if (sessionRef.current === settings.totalSessions) {
         try {
           console.log('🎮 Creando sesión con detalles:', detallesActualizados);
 

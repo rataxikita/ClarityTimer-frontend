@@ -39,6 +39,8 @@ api.interceptors.response.use(
       localStorage.removeItem(STORAGE_KEYS.USER_DATA);
       window.location.href = '/login';
     }
+    // Para errores 403 y otros, asegurar que el mensaje del backend se propague
+    // El error se rechaza para que el componente pueda manejarlo
     return Promise.reject(error);
   }
 );

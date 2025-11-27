@@ -223,47 +223,12 @@ taskkill /PID [PID_NUMBER] /F
 lsof -ti:5173 | xargs kill -9
 ```
 
-## 📝 Changelog
+## 👥 Miembros del Equipo
 
-### v2.0.0
-- ✨ Sistema de roles (CLIENTE, VENDEDOR, ADMIN)
-- 🛡️ Panel de administrador con gestión de productos
-- 🏬 Panel de vendedor con inventario y registro de adopciones
-- 📝 Sistema de notas con categorías y sincronización
-- 📜 Certificados de adopción descargables con códigos únicos
-- 🔐 Protección de rutas basada en roles
-- 🎨 UI mejorada con diseño consistente
-- 🔄 Migración completa a TypeScript
-- 📊 Estadísticas mejoradas
-
-### v1.0.0
-- ✨ Temporizador Pomodoro funcional
-- 🎭 Integración con personajes Sanrio
-- 🏪 Tienda de personajes con sistema de puntos
-- 🎒 Inventario de personajes
-- ⚙️ Panel de configuración completo
-- 📊 Seguimiento de progreso diario
-- 🔄 Modo automático configurable
-- 🔐 Sistema de autenticación con JWT
-
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## 🙏 Agradecimientos
-
-- Sanrio por los personajes adorables
-- La técnica Pomodoro por mejorar la productividad
-- La comunidad de React y Electron por las herramientas increíbles
+**Frontend y Backend:**
+- **Catalina Rosales**
+- **Edgar Morales**
 
 ---
 
-**¡Que tengas sesiones de estudio productivas y divertidas! 🍓✨**
+**Proyecto desarrollado para evaluación académica - Diciembre 2024**
